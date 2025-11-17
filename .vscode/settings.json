@@ -1,0 +1,15 @@
+{
+  // 코드 포매팅 관련
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // 린트 적용
+  "eslint.validate": ["javascript", "javascriptreact"],
+
+  // JavaScript 관련
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.updateImportsOnFileMove.enabled": "always"
+}
