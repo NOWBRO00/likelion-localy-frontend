@@ -1,5 +1,7 @@
 import styled, { css } from "styled-components";
 import { colors } from "@/styles/colors";
+import ChevronLeftIcon from "@/shared/components/icons/ChevronLeftIcon";
+import BookmarkIcon from "@/shared/components/icons/BookmarkIcon";
 
 const HeaderWrapper = styled.header`
   position: relative;
@@ -50,7 +52,6 @@ const Title = styled.h1`
   ${({ $useInter }) =>
     $useInter
       ? css`
-          font-family: "Inter", system-ui, sans-serif;
           font-weight: 700;
           font-style: normal;
           font-size: 15px;
@@ -59,7 +60,6 @@ const Title = styled.h1`
           color: #000;
         `
       : css`
-          font-family: "Fredoka One", system-ui, sans-serif;
           font-style: normal;
           font-weight: 400;
           font-size: 24px;
@@ -113,11 +113,11 @@ const Header = ({ leftIcon, rightIcon, text, onLeftClick, onRightClick }) => {
   return (
     <HeaderWrapper>
       <LeftSlot onClick={onLeftClick} aria-label="왼쪽 버튼">
-        {leftIcon}
+        {leftIcon || <ChevronLeftIcon />}
       </LeftSlot>
       <Title $useInter={useInterFont}>{text}</Title>
       <RightSlot onClick={onRightClick} aria-label="오른쪽 버튼">
-        {rightIcon}
+        {rightIcon || <BookmarkIcon />}
       </RightSlot>
     </HeaderWrapper>
   );

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router";
 import { colors } from "@/styles/colors";
-import Icon from "./Icon";
+import Icon from "../icons/BottomIcon";
 
 export const BottomNavigationContainer = styled.div`
   position: fixed;

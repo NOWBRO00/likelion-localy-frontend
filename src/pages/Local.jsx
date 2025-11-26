@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
-import media from "@/styles/media";
 import BottomNavigation from "@/shared/components/bottom/BottomNavigation";
+import Header from "@/shared/components/Header/Header";
+import HomeCard from "@/features/local/components/HomeCard";
 
 const Container = styled.div`
   padding: 40px 20px;
@@ -16,36 +17,17 @@ const Title = styled.h1`
   margin-bottom: 40px;
 `;
 
-const ResponsiveBox = styled.div`
-  padding: 30px;
-  border-radius: 12px;
-  text-align: center;
-  transition: all 0.3s;
 
-  ${media.small`
-    background: ${colors.blue[200]};
-    ${font.regular14}
-  `}
-
-  ${media.medium`
-    background: ${colors.green[200]};
-    ${font.regular16}
-  `}
-
-  ${media.large`
-    background: ${colors.purple[200]};
-    ${font.regular18}
-  `}
-`;
 
 export default function LocalPage() {
   return (
-    <Container>
-      <Title>로컬 화면</Title>
-      <ResponsiveBox>
-        <strong>로컬 페이지입니다</strong>
-      </ResponsiveBox>
-      <BottomNavigation></BottomNavigation>
-    </Container>
+    <>
+      <Header text="로컬 적용 가이드" />
+
+      <Container>
+        <HomeCard />
+        <BottomNavigation></BottomNavigation>
+      </Container>
+    </>
   );
 }
