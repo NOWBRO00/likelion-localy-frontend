@@ -29,7 +29,8 @@ function App() {
               <Route path="/find-password" element={<FindPasswordPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/welcome" element={<WelcomePage />} />
-              <Route path="/main" element={<DashboardPage />} />
+              <Route path="/main" element={<MainPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/mypage/edit" element={<EditMyInfoPage />} />
               <Route path="/premium" element={<PremiumPlanPage />} />

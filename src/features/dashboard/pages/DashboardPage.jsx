@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import * as S from "../styles/DashboardPage.styles";
 import SidebarModal from "../../onboarding/components/SidebarModal";
+import Header from "@/shared/components/Header/Header";
+import BellIcon from "@/shared/components/icons/BellIcon";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -307,23 +309,26 @@ export default function DashboardPage() {
     }
   };
 
+  // Badge를 포함한 알림 아이콘 래퍼
+  const NotificationIconWithBadge = () => (
+    <div style={{ position: 'relative', display: 'inline-block', width: '24px', height: '24px' }}>
+      <BellIcon color="black" size={20} />
+      <S.Badge style={{ left: '12px', top: '-2px' }}>5</S.Badge>
+    </div>
+  );
+
   return (
     <S.Container>
       {/* 헤더 */}
-      <S.Header>
-        <S.LogoWrapper>
-          Localy
-        </S.LogoWrapper>
-        <S.NotificationButton type="button">
-          <S.BellIcon>
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 2C8.9 2 8 2.9 8 4V5.5C6.5 6.2 5.5 7.7 5.5 9.5V13.5C5.5 14.1 5.1 14.5 4.5 14.5H3.5C3.2 14.5 3 14.7 3 15C3 15.3 3.2 15.5 3.5 15.5H16.5C16.8 15.5 17 15.3 17 15C17 14.7 16.8 14.5 16.5 14.5H15.5C14.9 14.5 14.5 14.1 14.5 13.5V9.5C14.5 7.7 13.5 6.2 12 5.5V4C12 2.9 11.1 2 10 2Z" fill="#0D0D0D" stroke="#0D0D0D" strokeWidth="2"/>
-              <path d="M10 17.5C10.8 17.5 11.5 16.8 11.5 16H8.5C8.5 16.8 9.2 17.5 10 17.5Z" fill="#0D0D0D" stroke="#0D0D0D" strokeWidth="2"/>
-            </svg>
-          </S.BellIcon>
-          <S.Badge>5</S.Badge>
-        </S.NotificationButton>
-      </S.Header>
+      <div style={{ position: 'absolute', width: '375px', height: '56px', left: '0px', top: '44px' }}>
+        <Header
+          text="Localy"
+          rightIcon={<NotificationIconWithBadge />}
+          onRightClick={() => {
+            // 알림 클릭 핸들러 (필요시 추가)
+          }}
+        />
+      </div>
 
       {/* 필터 Pills */}
       <S.PillsContainer>
