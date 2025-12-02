@@ -12,8 +12,7 @@ import MyPage from "@/features/mypage/pages/MyPage";
 import EditMyInfoPage from "@/features/mypage/pages/EditMyInfoPage";
 import PremiumPlanPage from "@/features/premium/pages/PremiumPlanPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
-import TestPage from "@/pages/test-page";
-import ChatPage from "@/pages/ChatPage";
+import ChatPage from "@/features/chat/pages/ChatPage";
 
 function App() {
   return (
@@ -23,7 +22,6 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route element={<GlobalLayout />}>
-              <Route path="/test" element={<TestPage />} />
               <Route path="/" element={<LoginPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
