@@ -115,9 +115,11 @@ const Header = ({ leftIcon, rightIcon, text, onLeftClick, onRightClick }) => {
         {leftIcon || <ChevronLeftIcon />}
       </LeftSlot>
       <Title $useInter={useInterFont}>{text}</Title>
-      <RightSlot onClick={onRightClick} aria-label="오른쪽 버튼">
-        {rightIcon || <ChevronLeftIcon rotate={180} />}
-      </RightSlot>
+      {rightIcon !== null && (
+        <RightSlot onClick={onRightClick} aria-label="오른쪽 버튼">
+          {rightIcon || <ChevronLeftIcon rotate={180} />}
+        </RightSlot>
+      )}
     </HeaderWrapper>
   );
 };

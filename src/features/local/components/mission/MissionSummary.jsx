@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
@@ -48,6 +49,11 @@ const MissionCard = styled.div`
     transition: opacity 0.3s;
     border-bottom: 1px solid ${colors.gray[200]};
     padding: 16px 6px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${colors.gray[50]};
+    }
 `;
 
 const MissionCardContent = styled.div`
@@ -96,10 +102,15 @@ const EmptyMessage = styled.div`
 `;
 
 export default function MissionSummary({ availableMissions = [], completedMissions = [] }) {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("available"); // "available" 또는 "completed"
 
     const isCompleted = activeTab === "completed";
     const currentMissions = isCompleted ? completedMissions : availableMissions;
+
+    const handleMissionClick = (missionId) => {
+        navigate(`/local/challenge/${missionId}`);
+    };
 
     return (
         <MissionSummaryContainer>
@@ -121,7 +132,11 @@ export default function MissionSummary({ availableMissions = [], completedMissio
             <MissionCardCarousel>
                 {currentMissions.length > 0 ? (
                     currentMissions.map((mission) => (
-                        <MissionCard key={mission.id} $isCompleted={isCompleted}>
+                        <MissionCard
+                            key={mission.id}
+                            $isCompleted={isCompleted}
+                            onClick={() => handleMissionClick(mission.id)}
+                        >
                             <MissionCardContent>
                                 {mission.isNew && <NewIcon />}
 

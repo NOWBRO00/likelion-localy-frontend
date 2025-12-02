@@ -14,6 +14,12 @@ const CardContainer = styled.div`
   background-color: ${colors.blue[10]};
   padding: 25px 18px 30px 18px;
   border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${colors.blue[20]};
+  }
 `;
 
 //감정에 따른 텍스트 색상변경 필요
@@ -72,17 +78,19 @@ const EmotionsContainer = styled.div`
  * @param {string} emotionKeyword - 감정 키워드 (예: "외로움", "우울")
  * @param {number} totalMissions - 전체 미션 수
  * @param {number} progressPercent - 진행률 (0-100)
+ * @param {function} onClick - 클릭 이벤트 핸들러
  */
 export default function HomeCard({
   emotionKeyword = "중립",
   totalMissions = 4,
-  progressPercent = 0
+  progressPercent = 0,
+  onClick
 }) {
   // 감정 데이터 가져오기
   const emotionData = getEmotionData(emotionKeyword);
 
   return (
-    <CardContainer>
+    <CardContainer onClick={onClick}>
       <Mood>{emotionData.message}</Mood>
       <MissionTitle>로컬리 미션 완료하기</MissionTitle>
       <MissionDescription>

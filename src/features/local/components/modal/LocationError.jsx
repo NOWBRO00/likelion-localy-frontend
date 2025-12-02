@@ -16,15 +16,15 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-    background-color: ${colors.gray[100]};
+    background-color: #ffffff;
     border-radius: 16px;
-    padding: 24px 12px;
+    padding: 32px 24px;
     max-width: 320px;
     width: 90%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     text-align: center;
 `;
 
@@ -78,8 +78,9 @@ const CloseButton = styled.button`
  * @param {boolean} isOpen - 모달 열림/닫힘 상태
  * @param {function} onClose - 모달 닫기 콜백 함수
  * @param {string} placeName - 장소 이름 (선택)
+ * @param {string} errorMessage - 에러 메시지 (선택)
  */
-export default function LocationError({ isOpen, onClose, placeName }) {
+export default function LocationError({ isOpen, onClose, placeName, errorMessage }) {
     if (!isOpen) return null;
 
     const handleOverlayClick = (e) => {
@@ -92,7 +93,9 @@ export default function LocationError({ isOpen, onClose, placeName }) {
         <ModalOverlay onClick={handleOverlayClick}>
             <ModalContainer>
                 <Title>잠시만요!</Title>
-                <Message>🥲 Localy가 당신의 위치를 정확하게 찾을 수 없어요.</Message>
+                <Message>
+                    {errorMessage || '🥲 Localy가 당신의 위치를 정확하게 찾을 수 없어요.'}
+                </Message>
                 <Description>
                     {placeName && (
                         <DescriptionText>
@@ -103,6 +106,7 @@ export default function LocationError({ isOpen, onClose, placeName }) {
                         *GPS의/위치 서비스가 꺼져 있는지 확인해 보세요.
                     </DescriptionText>
                 </Description>
+                <CloseButton onClick={onClose}>확인</CloseButton>
             </ModalContainer>
         </ModalOverlay>
     );

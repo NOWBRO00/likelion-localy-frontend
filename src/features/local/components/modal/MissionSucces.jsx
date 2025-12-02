@@ -102,15 +102,21 @@ const CloseButton = styled.button`
     }
 `;
 
-const missionTitle = "카페 방문하고 인증하기";
-
 /**
- * 위치 오류 모달 컴포넌트
+ * 미션 성공 모달 컴포넌트
  * @param {boolean} isOpen - 모달 열림/닫힘 상태
  * @param {function} onClose - 모달 닫기 콜백 함수
- * @param {string} placeName - 장소 이름 (선택)
+ * @param {function} onOtherMissions - 다른 미션 보기 콜백 함수
+ * @param {string} missionTitle - 미션 제목
+ * @param {number} earnedPoints - 획득한 포인트
  */
-export default function LocationError({ isOpen, onClose }) {
+export default function MissionSuccess({
+    isOpen,
+    onClose,
+    onOtherMissions,
+    missionTitle = "미션",
+    earnedPoints = 0
+}) {
     if (!isOpen) return null;
 
     const handleOverlayClick = (e) => {
@@ -130,14 +136,13 @@ export default function LocationError({ isOpen, onClose }) {
                 <PointContainer>
                     <PointText>획득한 Localy 포인트</PointText>
                     <PointDisplay>
-
-                        <PointValue>10</PointValue>
+                        <PointValue>{earnedPoints}</PointValue>
                         <PointUnit>P</PointUnit>
                     </PointDisplay>
                 </PointContainer>
                 <ButtonContainer>
                     <CloseButton onClick={onClose}>닫기</CloseButton>
-                    <CloseButton $isPrimary onClick={onClose}>다른 미션 보기</CloseButton>
+                    <CloseButton $isPrimary onClick={onOtherMissions}>다른 미션 보기</CloseButton>
                 </ButtonContainer>
             </ModalContainer>
         </ModalOverlay>

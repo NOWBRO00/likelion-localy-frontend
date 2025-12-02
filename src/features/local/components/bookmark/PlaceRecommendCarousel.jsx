@@ -89,7 +89,7 @@ export default function PlaceRecommendCarousel({
 
     const handlePlaceClick = (placeId) => {
         if (placeId) {
-            navigate(`/local-detail/${placeId}`);
+            navigate(`/local/detail/${placeId}`);
         }
     };
 
