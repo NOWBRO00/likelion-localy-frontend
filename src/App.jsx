@@ -3,14 +3,14 @@ import { GlobalStyle } from "@/styles/global-style";
 import GlobalLayout from "@/shared/components/global-layout";
 import HomePage from "@/pages/Home";
 import ChatPage from "@/pages/Chat";
-import LocalPage from "@/pages/Local";
-import BookmarkPage from "@/pages/Bookmark";
+import LocalPage from "@/pages/local/Local";
+import BookmarkPage from "@/pages/local/Bookmark";
 import FeedbackPage from "@/pages/Feedback";
 import MypagePage from "@/pages/Mypage";
-import MissionPage from "@/pages/Mission";
-import LocalDetailPage from "@/pages/LocalDetail";
-import ChallengePage from "@/pages/Challenge";
-import SpendPointsPage from "@/pages/SpendPoints";
+import MissionPage from "@/pages/local/Mission";
+import LocalDetailPage from "@/pages/local/LocalDetail";
+import ChallengePage from "@/pages/local/Challenge";
+import SpendPointsPage from "@/pages/local/SpendPoints";
 
 function App() {
   return (

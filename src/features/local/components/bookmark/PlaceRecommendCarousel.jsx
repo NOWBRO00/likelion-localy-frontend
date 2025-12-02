@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
@@ -24,6 +25,7 @@ const PlaceDisplay = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  cursor: pointer;
 `;
 
 const PlaceImage = styled.div`
@@ -34,6 +36,7 @@ const PlaceImage = styled.div`
   background-size: cover;
   background-position: center;
   border-radius: 8px;
+  cursor: pointer;
 `;
 
 const PlaceContent = styled.div`
@@ -57,6 +60,10 @@ const PlaceLocation = styled.div`
   color: ${colors.gray[900]};
 `;
 
+/**
+ * 장소 추천 캐러셀 컴포넌트
+ * 단일 책임: 장소 목록 스와이퍼 UI 표시 및 클릭 네비게이션
+ */
 export default function PlaceRecommendCarousel({
     title,
     places = [],
@@ -71,12 +78,20 @@ export default function PlaceRecommendCarousel({
     containerHeight,
     padding = 0,
 }) {
+    const navigate = useNavigate();
+
     const autoplayConfig = autoplay
         ? {
             delay: 3000,
             disableOnInteraction: false,
         }
         : false;
+
+    const handlePlaceClick = (placeId) => {
+        if (placeId) {
+            navigate(`/local-detail/${placeId}`);
+        }
+    };
 
     return (
         <Container $padding={padding}>
@@ -103,16 +118,16 @@ export default function PlaceRecommendCarousel({
                                 : undefined
                         }
                     >
-                        <PlaceDisplay>
+                        <PlaceDisplay onClick={() => handlePlaceClick(place.placeId)}>
                             <PlaceImage
                                 $width={imageWidth}
                                 $height={imageHeight}
-                                $imageUrl={place.imageUrl}
+                                $imageUrl={place.thumbnailImage || place.imageUrl}
                             />
                             <PlaceContent>
                                 {place.category && <PlaceCategory>{place.category}</PlaceCategory>}
-                                {place.name && <PlaceName>{place.name}</PlaceName>}
-                                {place.location && <PlaceLocation>{place.location}</PlaceLocation>}
+                                {place.placeName && <PlaceName>{place.placeName}</PlaceName>}
+                                {place.address && <PlaceLocation>{place.address}</PlaceLocation>}
                             </PlaceContent>
                         </PlaceDisplay>
                     </SwiperSlide>

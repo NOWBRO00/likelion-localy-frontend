@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
 
@@ -8,6 +7,8 @@ import PlaceRecommendCarousel from "@/features/local/components/bookmark/PlaceRe
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
 import BookmarkIcon from "@/shared/components/icons/BookmarkIcon";
+import { usePlaceDetail } from "@/features/local/hooks/usePlaceDetail";
+import { useNavigate } from "react-router";
 const DetailContainer = styled.div`
     max-width: 800px;
     margin: 0 auto;
@@ -72,66 +73,16 @@ line - height: 1.6;
     padding: 16px;
 `;
 
-
-
-// 목업 데이터
-const MOCK_DATA = {
-    placeId: 123,
-    placeName: "파이키 카페",
-    category: "카페",
-    address: "서울시 강남구 테헤란로 123",
-    latitude: 37.5665,
-    longitude: 126.9780,
-    phoneNumber: "0507-0000-0000",
-    openingHours: "매일 10:00 - 19:00",
-    images: [
-        "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800",
-        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
-        "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800"
-    ],
-    shortDescription: "아늑하고 감성적인 분위기의 카페",
-    longDescription: "조용하고 편안한 분위기에서 커피와 디저트를 즐길 수 있는 공간입니다. 인테리어가 예쁘고 음료와 베이커리의 퀄리티가 훌륭합니다.",
-    isBookmarked: false,
-    bookmarkCount: 157
-};
-
 export default function LocalDetailPage() {
+    const navigate = useNavigate();
+    const handleLeftClick = () => {
+        navigate(-1);
+    };
+
     const { id } = useParams();
-    const [placeData, setPlaceData] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchPlaceDetail = async () => {
-            try {
-                setLoading(true);
-
-                // 개발 중에는 목업 데이터 사용
-                // TODO: 실제 API 연동 시 아래 주석 해제
-                /*
-                const response = await fetch(`/ api / places / ${ id } `);
-                const result = await response.json();
-                
-                if (result.success) {
-                    setPlaceData(result.data);
-                }
-                */
-
-                // 목업 데이터 사용 (개발용)
-                setTimeout(() => {
-                    setPlaceData(MOCK_DATA);
-                    setLoading(false);
-                }, 500);
-
-            } catch (error) {
-                console.error("장소 상세 정보 조회 실패:", error);
-                setLoading(false);
-            }
-        };
-
-        if (id) {
-            fetchPlaceDetail();
-        }
-    }, [id]);
+    // 장소 상세 정보 가져오기
+    const { data: placeData, loading, error } = usePlaceDetail(id);
 
     if (loading) {
         return (
@@ -143,11 +94,11 @@ export default function LocalDetailPage() {
         );
     }
 
-    if (!placeData) {
+    if (error || !placeData) {
         return (
             <>
                 <Header text="오류" />
-                <DetailContainer>장소 정보를 불러올 수 없습니다.</DetailContainer>
+                <DetailContainer>{error || '장소 정보를 불러올 수 없습니다.'}</DetailContainer>
                 <BottomNavigation />
             </>
         );
@@ -158,7 +109,7 @@ export default function LocalDetailPage() {
 
     return (
         <>
-            <Header text={placeData.placeName} rightIcon={<BookmarkIcon />} />
+            <Header text={placeData.placeName} rightIcon={<BookmarkIcon />} onLeftClick={handleLeftClick} />
             <DetailContainer>
                 {/* 이미지 스와이퍼 */}
                 {imageSlides.length > 0 && (

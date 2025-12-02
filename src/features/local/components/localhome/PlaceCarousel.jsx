@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import { font } from "@/styles/font";
@@ -25,13 +26,20 @@ const ItemDisplay = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
 `;
 
 const ItemImage = styled.div`
+  background-image: ${(props) => props.$imageUrl ? `url(${props.$imageUrl})` : 'none'};
+  background-size: cover;
+  background-position: center;
   width: ${(props) => props.$size}px;
   height: ${(props) => props.$size}px;
   background-color: ${colors.gray[200]};
   border-radius: ${(props) => (props.$variant === "circle" ? "50%" : "8px")};
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+
 `;
 
 const ItemName = styled.div`
@@ -39,6 +47,10 @@ const ItemName = styled.div`
   color: ${colors.gray[900]};
 `;
 
+/**
+ * 장소 캐러셀 컴포넌트
+ * 단일 책임: 장소 목록 스와이퍼 UI 표시 및 클릭 네비게이션
+ */
 export default function PlaceCarousel({
   title,
   items = [],
@@ -51,7 +63,14 @@ export default function PlaceCarousel({
   slidesOffsetBefore,
   slidesOffsetAfter,
 }) {
+  const navigate = useNavigate();
   const shouldUseAutoWidth = slidesPerView === "auto";
+
+  const handlePlaceClick = (placeId) => {
+    if (placeId) {
+      navigate(`/local-detail/${placeId}`);
+    }
+  };
 
   return (
     <Container>
@@ -80,9 +99,9 @@ export default function PlaceCarousel({
                 : undefined
             }
           >
-            <ItemDisplay>
-              <ItemImage $variant={variant} $size={itemSize} />
-              {item.name ? <ItemName>{item.name}</ItemName> : null}
+            <ItemDisplay onClick={() => handlePlaceClick(item.placeId)}>
+              <ItemImage $variant={variant} $size={itemSize} $imageUrl={item.thumbnailImage} />
+              {item.placeName ? <ItemName>{item.placeName}</ItemName> : "파이키"}
             </ItemDisplay>
           </SwiperSlide>
         ))}

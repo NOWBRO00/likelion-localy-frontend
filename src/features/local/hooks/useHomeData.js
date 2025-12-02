@@ -31,8 +31,8 @@ export function useHomeData(latitude, longitude) {
 
                 // 목업 데이터 사용
                 if (USE_MOCK_DATA) {
-                    // 실제 API 호출처럼 딜레이 추가
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    // 딜레이 최소화
+                    await new Promise(resolve => setTimeout(resolve, 100));
 
                     if (mockHomeData.success) {
                         setData(mockHomeData.data);

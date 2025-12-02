@@ -20,11 +20,11 @@ export function useGeolocation() {
     useEffect(() => {
         // 목업 데이터 사용
         if (USE_MOCK_DATA) {
-            // 실제 위치 가져오기처럼 딜레이 추가
+            // 딜레이 최소화
             setTimeout(() => {
                 setLocation(mockLocation);
                 setLoading(false);
-            }, 300);
+            }, 50);
             return;
         }
 
