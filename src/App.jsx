@@ -14,6 +14,7 @@ import PremiumPlanPage from "@/features/premium/pages/PremiumPlanPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ChatPage from "@/features/chat/pages/ChatPage";
 import NotificationPage from "@/features/notification/pages/NotificationPage";
+import LoadingPage from "@/features/loading/pages/LoadingPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/find-password" element={<FindPasswordPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/welcome" element={<WelcomePage />} />
+              <Route path="/loading" element={<LoadingPage />} />
               <Route path="/main" element={<MainPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/mypage" element={<MyPage />} />
