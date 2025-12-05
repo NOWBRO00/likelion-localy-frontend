@@ -36,26 +36,6 @@ export const getGoogleClientId = async () => {
 };
 
 /**
- * JWT 토큰 디코딩 헬퍼 함수
- */
-const decodeJWT = (token) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (err) {
-    console.error('JWT 디코딩 실패:', err);
-    return null;
-  }
-};
-
-/**
  * 2-2. 구글 소셜 로그인
  * POST /api/auth/login/google
  */
@@ -157,13 +137,19 @@ export const logout = async () => {
 };
 
 /**
- * 7. 비밀번호 찾기
+ * 7. 비밀번호 재설정 (비밀번호 찾기)
  * POST /api/auth/password/reset
  */
-export const resetPassword = async (email) => {
+export const resetPassword = async (email, code, newPassword, newPasswordConfirm) => {
   const response = await apiClient.post("/api/auth/password/reset", {
     email,
+    code,
+    newPassword,
+    newPasswordConfirm,
   });
-  return response.data;
+  
+  // Response 구조: BaseResponse<PasswordResetResponse> = { data: { success: true, message: "..." } }
+  const responseData = response.data?.data || response.data;
+  return responseData;
 };
 

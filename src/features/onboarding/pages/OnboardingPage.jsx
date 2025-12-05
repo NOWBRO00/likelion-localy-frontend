@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/useLanguage";
 import * as S from "../styles/OnboardingPage.styles";
 import SidebarModal from "../components/SidebarModal";
 import { updateNationality, updateInterests } from "../api/onboardingApi";
@@ -12,7 +12,7 @@ import { updateNationality, updateInterests } from "../api/onboardingApi";
  */
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { t, changeLanguage, language } = useLanguage();
+  const { t, changeLanguage } = useLanguage();
   const [searchParams] = useSearchParams();
   
   // URL 쿼리 파라미터에서 초기 스텝 가져오기 (기본값: 1)

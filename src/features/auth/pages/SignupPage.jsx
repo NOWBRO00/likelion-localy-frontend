@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import Logo from "@/shared/components/Logo";
 import * as S from "../styles/SignupPage.styles";
@@ -104,7 +104,7 @@ export default function SignupPage() {
     setError("");
     
     try {
-      const result = await signup({
+      await signup({
         email: email.trim(),
         password,
         confirmPassword,
@@ -183,7 +183,7 @@ export default function SignupPage() {
   /**
    * 인증번호 확인 핸들러
    */
-  const handleVerifyCode = async () => {
+  const handleVerifyCode = useCallback(async () => {
     if (verificationCode.trim() === "" || isLoading) return;
     
     setIsLoading(true);
@@ -209,7 +209,7 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [verificationCode, email, isLoading]);
 
   // ========== 인증번호 자동 확인 ==========
   /**
