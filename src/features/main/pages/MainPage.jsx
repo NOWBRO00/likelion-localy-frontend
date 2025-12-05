@@ -19,11 +19,11 @@ export default function MainPage() {
   const handleNotificationClick = () => navigate("/notifications");
   const handleChatClick = () => navigate("/chat");
   const handleBookmarkClick = () => navigate("/bookmarks");
-  const handleMissionClick = () => navigate("/mission");
+  const handleMissionClick = () => navigate("/local/mission");
   const handleEmotionLogClick = () => navigate("/dashboard");
   const handleProfileClick = () => navigate("/mypage");
   const handleViewTrend = () => navigate("/dashboard");
-  const handleViewBookmarks = () => navigate("/bookmarks");
+  const handleViewBookmarks = () => navigate("/local/bookmark");
 
   return (
     <PageWrapper>
