@@ -81,22 +81,15 @@ export default function DashboardPage() {
       setDailyFeedbackData(data);
     } catch (error) {
       console.error("Daily 피드백 데이터 가져오기 실패:", error);
+      // 에러 발생 시 빈 데이터로 설정
+      setDailyFeedbackData(null);
     }
   }, [selectedPeriod]);
 
   // Daily 피드백 데이터를 차트 형식으로 변환
   const dailyChartData = dailyFeedbackData 
     ? convertDailyDataToChartFormat(dailyFeedbackData)
-    : [
-    { time: 3, value: 10 },
-    { time: 6, value: 15 },
-    { time: 9, value: 25 },
-    { time: 12, value: 35 },
-    { time: 15, value: 30 },
-    { time: 18, value: 40 },
-    { time: 21, value: 45 },
-    { time: 24, value: 42 },
-      ]; // 기본값 (로딩 중이거나 에러 시)
+    : []; // 데이터가 없으면 빈 배열
 
   // API 응답을 Week 차트 데이터 형식으로 변환
   const convertWeekDataToChartFormat = (apiData) => {
@@ -119,21 +112,15 @@ export default function DashboardPage() {
       setWeekFeedbackData(data);
     } catch (error) {
       console.error("Week 피드백 데이터 가져오기 실패:", error);
+      // 에러 발생 시 빈 데이터로 설정
+      setWeekFeedbackData(null);
     }
   }, [selectedPeriod]);
 
   // Week 피드백 데이터를 차트 형식으로 변환
   const weekChartData = weekFeedbackData 
     ? convertWeekDataToChartFormat(weekFeedbackData)
-    : [
-    { day: "월", value: 20 },
-    { day: "화", value: 35 },
-    { day: "수", value: 50 },
-    { day: "목", value: 65 },
-    { day: "금", value: 80 },
-    { day: "토", value: 75 },
-    { day: "일", value: 88 },
-      ]; // 기본값 (로딩 중이거나 에러 시)
+    : []; // 데이터가 없으면 빈 배열
 
   // API 응답을 Month 캘린더 데이터 형식으로 변환
   const convertMonthDataToCalendarFormat = (apiData) => {
@@ -161,6 +148,8 @@ export default function DashboardPage() {
       setMonthFeedbackData(data);
     } catch (error) {
       console.error("Month 피드백 데이터 가져오기 실패:", error);
+      // 에러 발생 시 빈 데이터로 설정
+      setMonthFeedbackData(null);
     }
   }, [selectedPeriod]);
 
@@ -178,13 +167,7 @@ export default function DashboardPage() {
   // Month 피드백 데이터를 캘린더 형식으로 변환
   const monthCalendarDataMap = monthFeedbackData 
     ? convertMonthDataToCalendarFormat(monthFeedbackData)
-    : {
-    1: 70, 2: 10, 3: 45, 4: 35, 5: 25, 6: 50,
-    7: 80, 8: 12, 9: 40, 10: 60, 11: 30, 12: 20,
-    13: 75, 14: 48, 15: 38, 16: 35, 17: 25, 18: 65,
-    19: 85, 20: 20, 21: 50, 22: 40, 23: 30, 24: 70,
-    25: 90, 26: 14, 27: 45, 28: 60, 29: 35, 30: 80,
-      }; // 기본값 (로딩 중이거나 에러 시)
+    : {}; // 데이터가 없으면 빈 객체
   
   // 년/월 변경 함수 (현재 사용되지 않음, 추후 필요시 사용)
   // const handlePrevMonth = () => {
@@ -266,7 +249,7 @@ export default function DashboardPage() {
     for (let day = 1; day <= daysInMonth; day++) {
       calendarDays.push({
         day,
-        value: monthCalendarDataMap[day] || 50, // 데이터가 없으면 기본값 50
+        value: monthCalendarDataMap[day] || null, // 데이터가 없으면 null
       });
     }
     
@@ -275,6 +258,9 @@ export default function DashboardPage() {
 
   // 감정 구간에 따른 캐릭터와 감정 단어 결정 함수
   const getEmotionByValue = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
     if (value >= 0 && value <= 16) {
       return { character: "depression", emotion: "무기력함", message: "더 이상 무기력하지 않도록, Localy가 도와드릴게요." };
     } else if (value >= 17 && value <= 33) {
@@ -338,7 +324,9 @@ export default function DashboardPage() {
   const monthEmotionCounts = calculateEmotionCounts();
 
   // 오늘 가장 많이 느낀 감정 계산 (Daily 데이터의 평균값 사용)
-  const todayAverageValue = dailyChartData.reduce((sum, item) => sum + item.value, 0) / dailyChartData.length;
+  const todayAverageValue = dailyChartData.length > 0 
+    ? dailyChartData.reduce((sum, item) => sum + item.value, 0) / dailyChartData.length 
+    : null;
   const todayEmotion = getEmotionByValue(todayAverageValue);
 
   // Badge를 포함한 알림 아이콘 래퍼
@@ -686,7 +674,7 @@ export default function DashboardPage() {
           )}
 
           {/* Daily 차트 - Line Chart */}
-          {selectedPeriod === "Daily" && (
+          {selectedPeriod === "Daily" && dailyChartData.length > 0 && (
             <S.ChartLine>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={dailyChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
@@ -714,7 +702,7 @@ export default function DashboardPage() {
           )}
 
           {/* Week 차트 - Bar Chart */}
-          {selectedPeriod === "Week" && (
+          {selectedPeriod === "Week" && weekChartData.length > 0 && (
             <>
               {/* Y축 라벨 */}
               <S.YAxisLabel $top={60}>100</S.YAxisLabel>
@@ -806,15 +794,17 @@ export default function DashboardPage() {
           
           <S.EmotionInfo>
             <S.EmotionCharacterLarge>
-              {renderEmotionCharacter(todayEmotion.character)}
+              {todayEmotion && renderEmotionCharacter(todayEmotion.character)}
             </S.EmotionCharacterLarge>
             
-            <S.EmotionTextContainer>
-              <S.EmotionName>"{todayEmotion.emotion}"</S.EmotionName>
-              <S.EmotionDescription>
-                {todayEmotion.message}
-              </S.EmotionDescription>
-            </S.EmotionTextContainer>
+            {todayEmotion && (
+              <S.EmotionTextContainer>
+                <S.EmotionName>"{todayEmotion.emotion}"</S.EmotionName>
+                <S.EmotionDescription>
+                  {todayEmotion.message}
+                </S.EmotionDescription>
+              </S.EmotionTextContainer>
+            )}
           </S.EmotionInfo>
         </S.ListSection>
       )}
