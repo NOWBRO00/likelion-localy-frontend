@@ -305,7 +305,7 @@ export default function DashboardPage() {
     calendarData.forEach((entry) => {
       if (entry !== null) {
         const emotion = getEmotionByValue(entry.value);
-        if (counts[emotion.character] !== undefined) {
+        if (emotion && counts[emotion.character] !== undefined) {
           counts[emotion.character]++;
         }
       }
@@ -803,15 +803,17 @@ export default function DashboardPage() {
 
             <S.EmotionInfo>
               <S.EmotionCharacterLarge>
-                {renderEmotionCharacter(todayEmotion.character)}
+                {todayEmotion && renderEmotionCharacter(todayEmotion.character)}
               </S.EmotionCharacterLarge>
 
-              <S.EmotionTextContainer>
-                <S.EmotionName>"{todayEmotion.emotion}"</S.EmotionName>
-                <S.EmotionDescription>
-                  {todayEmotion.message}
-                </S.EmotionDescription>
-              </S.EmotionTextContainer>
+              {todayEmotion && (
+                <S.EmotionTextContainer>
+                  <S.EmotionName>"{todayEmotion.emotion}"</S.EmotionName>
+                  <S.EmotionDescription>
+                    {todayEmotion.message}
+                  </S.EmotionDescription>
+                </S.EmotionTextContainer>
+              )}
             </S.EmotionInfo>
           </S.ListSection>
         )}
