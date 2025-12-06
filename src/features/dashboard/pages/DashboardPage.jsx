@@ -846,27 +846,6 @@ export default function DashboardPage() {
           triggerRef={dateFieldRef}
         autoClose={selectedMode === "month"} // 월 선택 시에만 자동 닫기
       />
-        <S.Pill 
-          $isActive={selectedPeriod === "Daily"} 
-          onClick={() => setSelectedPeriod("Daily")}
-        >
-          Daily
-        </S.Pill>
-        <S.Pill 
-          $isActive={selectedPeriod === "Week"} 
-          onClick={() => setSelectedPeriod("Week")}
-        >
-          Week
-        </S.Pill>
-        <S.Pill 
-          $isActive={selectedPeriod === "Month"} 
-          onClick={() => setSelectedPeriod("Month")}
-        >
-          Month
-        </S.Pill>
-      </S.PillsContainer>
-
-      {/* 차트 섹션 */}
       {selectedPeriod === "Month" ? (
         <S.MonthChartSection>
           <S.MonthChartTitle>월별 감정 캘린더</S.MonthChartTitle>
