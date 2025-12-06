@@ -683,7 +683,7 @@ export default function DashboardPage() {
               )}
 
               {/* Daily 차트 - Line Chart */}
-              {selectedPeriod === "Daily" && (
+              {selectedPeriod === "Daily" && dailyChartData.length > 0 && (
                 <S.ChartLine>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={dailyChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
@@ -711,7 +711,7 @@ export default function DashboardPage() {
               )}
 
               {/* Week 차트 - Bar Chart */}
-              {selectedPeriod === "Week" && (
+              {selectedPeriod === "Week" && weekChartData.length > 0 && (
                 <>
                   {/* Y축 라벨 */}
                   <S.YAxisLabel $top={60}>100</S.YAxisLabel>
@@ -823,7 +823,7 @@ export default function DashboardPage() {
           <S.MonthListSection>
             <S.MonthListTitle>이번 달 감정 별 횟수</S.MonthListTitle>
             <S.MonthEmotionList>
-              {monthEmotionCounts.map((item, index) => (
+              {monthEmotionCounts.filter(item => item && item.emotion).map((item, index) => (
                 <S.MonthEmotionItem key={`month-emotion-${index}`}>
                   <S.MonthEmotionCharacter $width={index === 1 ? "19.91" : "32"} $height={index === 1 ? "45.96" : "48"}>
                     {renderEmotionCharacter(item.emotion)}
@@ -1289,7 +1289,7 @@ export default function DashboardPage() {
         <S.MonthListSection>
           <S.MonthListTitle>이번 달 감정 별 횟수</S.MonthListTitle>
           <S.MonthEmotionList>
-            {monthEmotionCounts.map((item, index) => (
+            {monthEmotionCounts.filter(item => item && item.emotion).map((item, index) => (
               <S.MonthEmotionItem key={`month-emotion-${index}`}>
                 <S.MonthEmotionCharacter $width={index === 1 ? "19.91" : "32"} $height={index === 1 ? "45.96" : "48"}>
                   {renderEmotionCharacter(item.emotion)}
