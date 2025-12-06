@@ -215,6 +215,8 @@ export const ChartLine = styled.div`
   position: absolute;
   width: 272px;
   height: 180px;
+  min-width: 272px;
+  min-height: 180px;
   left: 42px;
   top: 60px;
   z-index: 1;
@@ -410,6 +412,8 @@ export const WeekChartContainer = styled.div`
   position: absolute;
   width: 285px;
   height: 180px;
+  min-width: 285px;
+  min-height: 180px;
   left: 40px;
   top: 60px;
   z-index: 1;
