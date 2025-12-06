@@ -17,9 +17,10 @@ export const updateNationality = async (language, nationality) => {
  * PUT /api/users/interests
  */
 export const updateInterests = async (goodMoodActivities, badMoodActivities) => {
+  // 두 배열을 하나로 합쳐서 interests 키로 전송
+  const interests = [...goodMoodActivities, ...badMoodActivities];
   const response = await apiClient.put("/api/users/interests", {
-    goodMoodActivities,
-    badMoodActivities,
+    interests,
   });
   return response.data;
 };
