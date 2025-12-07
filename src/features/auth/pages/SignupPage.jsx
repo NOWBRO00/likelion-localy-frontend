@@ -32,7 +32,6 @@ export default function SignupPage() {
   // API 호출 상태
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [emailError, setEmailError] = useState(""); // 이메일 관련 에러 메시지
 
   // ========== 검증 함수 ==========
   /**
