@@ -347,19 +347,54 @@ export const ActivityLabel = styled.span`
 
 export const ActivityCharacter = styled.div`
   position: absolute;
-  bottom: 2px;
-  right: 2px;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  z-index: 1;
   
   svg {
     width: 28px;
     height: 28px;
   }
+  
+  /* 쇼핑: 왼쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "shopping" && `
+    left: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 자연: 오른쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "nature" && `
+    right: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 언어교환: 왼쪽 위에서 1/3 지점에 겹쳐있게 */
+  ${(props) => props.$position === "language" && `
+    left: -4px;
+    top: calc(33.33% - 14px);
+  `}
+  
+  /* 음식: 오른쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "food" && `
+    right: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 문화: 왼쪽 위에서 1/3 지점에 겹쳐있게 */
+  ${(props) => props.$position === "culture" && `
+    left: -6px;
+    top: calc(33.33% - 14px);
+  `}
+  
+  /* 관광: 오른쪽 위 모서리쪽에 겹쳐있게 */
+  ${(props) => props.$position === "tourism" && `
+    right: -4px;
+    top: -4px;
+  `}
 `;
 
 export const InfoText = styled.p`

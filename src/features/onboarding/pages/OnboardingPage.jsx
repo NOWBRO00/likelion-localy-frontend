@@ -97,7 +97,7 @@ export default function OnboardingPage() {
     { id: "culture", label: t("culture"), icon: "🗽", character: "sadness" },
     { id: "nature", label: t("nature"), icon: "🌳", character: "anxiety" },
     { id: "language", label: t("languageExchange"), icon: "🍸", character: "neutral" },
-    { id: "tourism", label: t("tourism"), icon: "🧳", character: "sadness" },
+    { id: "tourism", label: t("tourism"), icon: "🧳", character: "depression" },
   ], [t]);
 
   // 관심사 변경 모드일 때 기존 관심사 가져오기
@@ -353,6 +353,9 @@ export default function OnboardingPage() {
           const isExisting = existingInterests.includes(activity.id);
           const isDisabled = !isSelected && selectedActivities.length >= 3;
           
+          // 쇼핑, 자연, 언어교환에만 캐릭터 표시
+          const shouldShowCharacter = activity.id === "shopping" || activity.id === "nature" || activity.id === "language";
+          
           return (
             <S.ActivityField
               key={activity.id}
@@ -363,8 +366,8 @@ export default function OnboardingPage() {
             >
               <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
               <S.ActivityLabel>{activity.label}</S.ActivityLabel>
-              {activity.character && (
-                <S.ActivityCharacter>
+              {shouldShowCharacter && activity.character && (
+                <S.ActivityCharacter $position={activity.id}>
                   {renderEmotionCharacter(activity.character)}
                 </S.ActivityCharacter>
               )}
@@ -414,6 +417,9 @@ export default function OnboardingPage() {
           const isExisting = existingBadMoodInterests.includes(activity.id);
           const isDisabled = !isSelected && selectedBadMoodActivities.length >= 3;
           
+          // 음식, 문화, 관광에만 캐릭터 표시
+          const shouldShowCharacter = activity.id === "food" || activity.id === "culture" || activity.id === "tourism";
+          
           return (
             <S.ActivityField
               key={activity.id}
@@ -424,8 +430,8 @@ export default function OnboardingPage() {
             >
               <S.ActivityIcon>{activity.icon}</S.ActivityIcon>
               <S.ActivityLabel>{activity.label}</S.ActivityLabel>
-              {activity.character && (
-                <S.ActivityCharacter>
+              {shouldShowCharacter && activity.character && (
+                <S.ActivityCharacter $position={activity.id}>
                   {renderEmotionCharacter(activity.character)}
                 </S.ActivityCharacter>
               )}
