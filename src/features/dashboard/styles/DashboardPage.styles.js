@@ -2,13 +2,15 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   position: relative;
-  width: 375px;
-  min-height: 100vh;
-  height: 100vh;
+  width: 100%;
+  max-width: 375px;
+  min-height: calc(100vh - 120px); /* 헤더와 푸터 공간 제외 */
   background: #FFFFFF;
   margin: 0 auto;
-  overflow-y: auto;
-  overflow-x: visible;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const Header = styled.header`
@@ -26,11 +28,10 @@ export const Header = styled.header`
 `;
 
 export const LogoWrapper = styled.div`
-  position: absolute;
+  position: relative;
   width: 74px;
   height: 34px;
-  left: calc(50% - 74px/2 + 2.5px);
-  top: 11px;
+  margin: 20px auto 16px; /* 상단 여백과 하단 여백 고정 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,16 +94,16 @@ export const Badge = styled.div`
 
 export const ChartSection = styled.div`
   box-sizing: border-box;
-  position: absolute;
-  width: 343px;
-  height: 282px;
-  left: 16px;
-  top: 165px;
+  position: relative;
+  width: 100%;
+  max-width: 343px;
+  min-height: 282px;
+  margin: 0 auto 20px; /* 상단 여백 제거, 하단 여백 추가 */
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
   z-index: 1;
-  overflow: visible;
+  overflow: hidden;
 `;
 
 export const ChartTitle = styled.div`
@@ -122,11 +123,11 @@ export const ChartTitle = styled.div`
 `;
 
 export const PillsContainer = styled.div`
-  position: absolute;
-  width: 223px;
+  position: relative;
+  width: 100%;
+  max-width: 343px; /* 그래프와 같은 너비 */
   height: 29px;
-  left: 16px;
-  top: 120px;
+  margin: 0 0 16px 0; /* 왼쪽 정렬, 하단 여백 추가 */
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -163,15 +164,20 @@ export const Pill = styled.button`
 export const ChartArea = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 282px;
+  height: 282px;
   overflow: hidden;
+  padding-top: 44px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 30px;
 `;
 
 export const GridLine = styled.div`
   position: absolute;
-  width: 311px;
+  width: ${props => props.$left ? `calc(100% - ${props.$left}px - 16px)` : '311px'};
   height: 0px;
-  left: 42px;
+  left: ${props => props.$left || 42}px;
   top: ${props => props.$top}px;
   border: ${props => props.$top === 240 ? "1px solid #E0E0E0" : "1px solid rgba(230, 230, 230, 0.5)"};
   z-index: 0;
@@ -213,27 +219,31 @@ export const EmotionCharacter = styled.div`
 
 export const ChartLine = styled.div`
   position: absolute;
-  width: 272px;
+  width: calc(100% - 54px); /* 좌우 padding(16px * 2) + 캐릭터 영역(22px) 제외 */
+  max-width: 272px;
   height: 180px;
-  min-width: 272px;
+  min-width: 200px;
   min-height: 180px;
-  left: 42px;
+  left: 38px; /* 그래프 선만 오른쪽으로 이동 */
   top: 60px;
   z-index: 1;
   pointer-events: none;
   overflow: visible;
+  box-sizing: border-box;
 `;
 
 export const ListSection = styled.div`
   box-sizing: border-box;
-  position: absolute;
-  width: 343px;
-  height: 170px;
-  left: 17px;
-  top: 463px;
+  position: relative;
+  width: 100%;
+  max-width: 343px;
+  min-height: 170px;
+  margin: 0 auto 20px;
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const ListHeader = styled.div`
@@ -408,6 +418,24 @@ export const WeekGridLine = styled.div`
   z-index: 0;
 `;
 
+export const WeekYAxisLabel = styled.div`
+  position: absolute;
+  width: 20px;
+  height: 14px;
+  left: ${props => props.$left}px;
+  top: ${props => props.$top}px;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: -0.43px;
+  color: #838383;
+  text-align: right;
+  transform: translateY(-50%);
+  padding-right: 4px;
+`;
+
 export const WeekChartContainer = styled.div`
   position: absolute;
   width: 285px;
@@ -482,11 +510,11 @@ export const TabIcon = styled.button`
 // Month 뷰 스타일
 export const MonthChartSection = styled.div`
   box-sizing: border-box;
-  position: absolute;
-  width: 343px;
-  height: 323px;
-  left: 16px;
-  top: 165px;
+  position: relative;
+  width: 100%;
+  max-width: 351px; /* 343px -> 351px로 증가하여 일요일 날짜가 잘리지 않도록 */
+  min-height: 323px;
+  margin: 0 auto 20px; /* 상단 여백 제거, 하단 여백 추가 */
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
@@ -518,7 +546,7 @@ export const MonthDateHeader = styled.div`
   gap: 4px;
   position: absolute;
   width: auto;
-  min-width: 74px;
+  min-width: 90px; /* 년도와 월이 잘리지 않도록 너비 증가 */
   height: 22px;
   left: 50%;
   transform: translateX(-50%);
@@ -530,6 +558,7 @@ export const MonthDateHeader = styled.div`
   line-height: 22px;
   letter-spacing: -0.43px;
   color: #0D0D0D;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
 `;
 
 export const MonthChevronIcon = styled.div`
@@ -539,6 +568,12 @@ export const MonthChevronIcon = styled.div`
   width: 12px;
   height: 12px;
   cursor: pointer;
+  flex-shrink: 0; /* 아이콘 크기 고정 */
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
   
   &:hover {
     opacity: 0.7;
@@ -617,11 +652,11 @@ export const MonthCalendarGridLine = styled.div`
 
 export const MonthListSection = styled.div`
   box-sizing: border-box;
-  position: absolute;
-  width: 343px;
-  height: 153px;
-  left: 17px;
-  top: 504px;
+  position: relative;
+  width: 100%;
+  max-width: 343px;
+  min-height: 153px;
+  margin: 0 auto 20px;
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;

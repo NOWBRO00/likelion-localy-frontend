@@ -1,43 +1,20 @@
-import { useNavigate } from "react-router";
-import * as S from "../styles/WelcomePage.styles";
+import * as S from "../styles/SplashPage.styles";
 import { renderEmotionCharacter } from "@/shared/utils/emotionCharacters";
 
 /**
- * @component WelcomePage
- * @description 온보딩 완료 후 표시되는 환영 페이지
+ * 스플래시 페이지 컴포넌트
+ * 로딩 페이지와 동일한 디자인이지만 캐릭터 움직임이 없음
  */
-export default function WelcomePage() {
-  const navigate = useNavigate();
-
-  const handleStart = () => {
-    // 메인 페이지로 이동
-    navigate("/main");
-  };
-
+export default function SplashPage() {
   return (
     <S.Container>
-      {/* Localy 로고 */}
+      {/* Localy Logo */}
       <S.Logo>Localy</S.Logo>
-      
-      {/* 슬로건 */}
+
+      {/* Slogan */}
       <S.Slogan>Your Ally for Every Feeling, Every Place</S.Slogan>
-      
-      {/* 환영 메시지 */}
-      <S.WelcomeSection>
-        <S.WelcomeTitle>환영해요!</S.WelcomeTitle>
-        <S.WelcomeMessage>
-          이제 로컬리와 함께,
-          <br />
-          낯선 외로움은 잠시 잊고,
-          <br />
-          당신의 감정을 이해하는 친구를 만나보세요.
-          <br />
-          <br />
-          당신의 이야기를 들을 준비가 되었습니다. 🙂
-        </S.WelcomeMessage>
-      </S.WelcomeSection>
-      
-      {/* 감정 캐릭터들 */}
+
+      {/* 감정 캐릭터들 (움직임 없음) */}
       <S.CharactersGroup>
         {/* Component 8 - 행복 (happiness) */}
         <S.CharacterWrapper>
@@ -69,12 +46,10 @@ export default function WelcomePage() {
           {renderEmotionCharacter("anxiety")}
         </S.CharacterWrapper>
       </S.CharactersGroup>
-      
-      {/* 시작하기 버튼 */}
-      <S.StartButton onClick={handleStart}>
-        시작하기
-      </S.StartButton>
     </S.Container>
   );
 }
+
+
+
 

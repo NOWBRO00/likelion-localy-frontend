@@ -74,6 +74,7 @@ const MissionCardTime = styled.div`
 `;
 
 const MissionPoint = styled.div`
+    flex-shrink: 0;
     width: 80px;
     height: 80px;
     display: flex;

@@ -9,9 +9,11 @@ export default function PlaceImages({ images }) {
     <PlaceRecommendCarousel
       places={imageSlides}
       slidesPerView="auto"
-      spaceBetween={16}
+      spaceBetween={10}
       direction="horizontal"
       padding={16}
+      borderRadius={0}
+      imageWidth={100}
     />
   );
 }

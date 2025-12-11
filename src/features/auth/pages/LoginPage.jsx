@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router";
 import Logo from "@/shared/components/Logo";
 import * as S from "../styles/LoginPage.styles";
@@ -15,6 +15,32 @@ export default function LoginPage() {
   const googleButtonRef = useRef(null);
 
   const isButtonEnabled = email.trim() !== "" && password.trim() !== "" && !isLoading;
+
+  // Google 로그인 콜백
+  const handleGoogleCallback = useCallback(async (response) => {
+    if (response.credential) {
+      try {
+        setIsLoading(true);
+        setError("");
+        const result = await googleLogin(response.credential);
+        // 백엔드에서 onboardingCompleted 필드로 온보딩 완료 여부 확인
+        // onboardingCompleted가 false이면 온보딩으로, true이면 메인으로 이동
+        if (result.onboardingCompleted === false) {
+          // 온보딩 미완료 사용자는 온보딩으로 이동
+          navigate("/onboarding");
+        } else {
+          // 온보딩 완료 사용자는 메인으로 이동
+          navigate("/main");
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || "Google 로그인에 실패했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setError("Google 로그인에 실패했습니다.");
+    }
+  }, [navigate]);
 
   // Google 클라이언트 ID 가져오기 및 초기화
   useEffect(() => {
@@ -49,25 +75,7 @@ export default function LoginPage() {
     };
 
     initGoogleSignIn();
-  }, []);
-
-  // Google 로그인 콜백
-  const handleGoogleCallback = async (response) => {
-    if (response.credential) {
-      try {
-        setIsLoading(true);
-        setError("");
-        await googleLogin(response.credential);
-        navigate("/main");
-      } catch (err) {
-        setError(err.response?.data?.message || "Google 로그인에 실패했습니다.");
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setError("Google 로그인에 실패했습니다.");
-    }
-  };
+  }, [handleGoogleCallback]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
