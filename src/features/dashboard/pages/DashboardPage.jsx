@@ -172,8 +172,8 @@ export default function DashboardPage() {
     if (selectedPeriod !== "Month") return;
 
     try {
-      // yearMonth 형식: "202511" (YYYYMM)
-      const yearMonth = `${year}${String(month).padStart(2, '0')}`;
+      // yearMonth 형식: "2025-11" (yyyy-mm)
+      const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
       const data = await getMonthFeedback(yearMonth);
       setMonthFeedbackData(data);
     } catch (error) {
@@ -908,11 +908,6 @@ export default function DashboardPage() {
           <S.ListSection>
             <S.ListHeader>
               <S.ListTitle>오늘 가장 많이 느낀 감정은</S.ListTitle>
-              <S.ChevronIcon>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 4L10 8L6 12" stroke="#838383" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </S.ChevronIcon>
             </S.ListHeader>
 
             {dailyChartData.length > 0 && todayEmotion ? (
