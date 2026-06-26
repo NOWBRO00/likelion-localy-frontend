@@ -4,11 +4,13 @@ import { font } from "@/styles/font";
 export const Container = styled.div`
   position: relative;
   width: 100%;
+  max-width: 800px; /* 메인 페이지와 동일한 최대 너비 */
   min-height: 100vh;
   background: #FFFFFF;
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
+  margin: 0 auto; /* 메인 페이지와 동일하게 중앙 정렬 */
+  padding: 0;
 `;
 
 export const Header = styled.div`
@@ -17,14 +19,11 @@ export const Header = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 13px 22px;
-  width: 100%;
-  max-width: 327px; /* 비밀번호 찾기 페이지와 동일한 최대 너비 */
-  height: 56px;
+  padding: 0; /* 메인 페이지 헤더와 동일하게 padding 제거 */
+  width: 100%; /* 메인 페이지 헤더와 동일하게 전체 너비 사용 */
+  height: 56px; /* 메인 페이지 헤더와 동일한 높이 */
   background: #FFFFFF;
-  border-bottom: 1px solid #F3F3F3;
-  margin-left: auto;
-  margin-right: auto;
+  border-bottom: 0.5px solid #e6e6e6; /* 메인 페이지 헤더와 동일한 border */
   position: relative;
 `;
 
@@ -42,6 +41,10 @@ export const Title = styled.h1`
 `;
 
 export const BackButton = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 16px; /* 메인 페이지 헤더와 동일한 위치 */
   background: none;
   border: none;
   cursor: pointer;
@@ -57,6 +60,14 @@ export const BackButton = styled.button`
     width: 24px;
     height: 24px;
     color: #0D0D0D;
+  }
+  
+  &:hover {
+    opacity: 0.7;
+  }
+  
+  &:active {
+    opacity: 0.5;
   }
 `;
 
@@ -181,6 +192,7 @@ export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  padding: 0 24px; /* Container의 padding을 ContentWrapper로 이동 */
   max-width: 350px;
   margin-left: auto;
   margin-right: auto;
@@ -233,7 +245,7 @@ export const QuestionSection = styled.div`
   flex-direction: column;
   align-items: flex-start;
   padding: 0px;
-  gap: 20px;
+  gap: 8px; /* 간격을 20px에서 8px로 줄임 */
   width: 100%;
   max-width: 331px;
   margin-top: 40px;
@@ -258,11 +270,12 @@ export const QuestionSubtitle = styled.p`
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  line-height: 22px;
+  line-height: 18px; /* 간격 줄이기 위해 line-height 감소 */
   letter-spacing: -0.43px;
   color: #3D3D3D;
   width: 100%;
   margin: 0;
+  margin-top: 4px; /* 위쪽 간격 최소화 */
 `;
 
 export const QuestionLimit = styled.p`
@@ -270,11 +283,12 @@ export const QuestionLimit = styled.p`
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  line-height: 22px;
+  line-height: 18px; /* 간격 줄이기 위해 line-height 감소 */
   letter-spacing: -0.43px;
   color: #3D3D3D;
   width: 100%;
   margin: 0;
+  margin-top: 4px; /* 위쪽 간격 최소화 */
 `;
 
 export const ActivityGrid = styled.div`
@@ -294,7 +308,10 @@ export const ActivityField = styled.div`
   width: 120px;
   height: 120px;
   background: #FFFFFF;
-  border: 1px solid ${(props) => (props.$isSelected ? "#5482FF" : props.$isDisabled ? "#E0E0E0" : "#E0E0E0")};
+  border: 1px solid ${(props) => {
+    if (props.$isExisting || props.$isSelected) return "#5482FF";
+    return props.$isDisabled ? "#E0E0E0" : "#E0E0E0";
+  }};
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -302,14 +319,17 @@ export const ActivityField = styled.div`
   justify-content: center;
   cursor: ${(props) => (props.$isDisabled ? "not-allowed" : "pointer")};
   transition: all 0.2s ease;
-  background: ${(props) => (props.$isSelected ? "rgba(84, 130, 255, 0.05)" : props.$isDisabled ? "#F9F9F9" : "#FFFFFF")};
+  background: ${(props) => {
+    if (props.$isExisting || props.$isSelected) return "rgba(84, 130, 255, 0.1)";
+    return props.$isDisabled ? "#F9F9F9" : "#FFFFFF";
+  }};
   opacity: ${(props) => (props.$isDisabled ? 0.5 : 1)};
   
   &:hover {
     border-color: ${(props) => (props.$isDisabled ? "#E0E0E0" : "#5482FF")};
     background: ${(props) => {
       if (props.$isDisabled) return "#F9F9F9";
-      return props.$isSelected ? "rgba(84, 130, 255, 0.1)" : "rgba(84, 130, 255, 0.02)";
+      return props.$isExisting || props.$isSelected ? "rgba(84, 130, 255, 0.15)" : "rgba(84, 130, 255, 0.02)";
     }};
   }
   
@@ -337,6 +357,58 @@ export const ActivityLabel = styled.span`
   line-height: 17px;
   color: #0D0D0D;
   text-align: center;
+`;
+
+export const ActivityCharacter = styled.div`
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+  
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  /* 쇼핑: 왼쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "shopping" && `
+    left: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 자연: 오른쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "nature" && `
+    right: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 언어교환: 왼쪽 위에서 1/3 지점에 겹쳐있게 */
+  ${(props) => props.$position === "language" && `
+    left: -4px;
+    top: calc(33.33% - 14px);
+  `}
+  
+  /* 음식: 오른쪽 아래에 선에 겹쳐있게 */
+  ${(props) => props.$position === "food" && `
+    right: -4px;
+    bottom: -4px;
+  `}
+  
+  /* 문화: 왼쪽 위에서 1/3 지점에 겹쳐있게 */
+  ${(props) => props.$position === "culture" && `
+    left: -6px;
+    top: calc(33.33% - 14px);
+  `}
+  
+  /* 관광: 오른쪽 위 모서리쪽에 겹쳐있게 */
+  ${(props) => props.$position === "tourism" && `
+    right: -4px;
+    top: -4px;
+  `}
 `;
 
 export const InfoText = styled.p`

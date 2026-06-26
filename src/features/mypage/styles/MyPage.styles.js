@@ -2,10 +2,15 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   position: relative;
-  width: 375px;
-  height: 812px;
+  width: 100%;
+  max-width: 375px;
+  min-height: calc(100vh - 120px); /* 헤더와 푸터 공간 제외 */
   background: #FFFFFF;
   margin: 0 auto;
+  padding: 20px 16px 80px; /* 하단 여백 추가 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const Header = styled.header`
@@ -71,40 +76,67 @@ export const HeaderSpacer = styled.div`
 
 export const ProfileCard = styled.div`
   box-sizing: border-box;
-  position: absolute;
-  width: 343px;
-  height: 267px;
-  left: calc(50% - 343px/2);
-  top: 124px;
+  position: relative;
+  width: 100%;
+  max-width: 343px;
+  min-height: 267px;
+  margin-top: 20px;
   background: #FFFFFF;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
 `;
 
-export const ProfileIcon = styled.div`
-  position: absolute;
-  width: 113px;
-  height: 115px;
-  left: calc(50% - 113px/2);
-  top: 12px;
-  font-family: 'SF Pro';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 96px;
-  line-height: 115px;
+export const ProfileIcon = styled.button`
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  color: #E0E0E0;
+  background: #F3F3F3;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+
+  &:hover {
+    opacity: 0.92;
+  }
+`;
+
+// 프로필 원의 하단 경계에 살짝 걸치도록 음의 margin-top 으로 끌어올린다 (Figma 의 Component 18 위치 기준).
+// z-index 로 프로필 버튼보다 위에 떠 있도록 — 배지 영역 클릭이 프로필 네비게이션을 트리거하지 않게 함.
+export const PlanBadge = styled.span`
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -14px;
+  margin-bottom: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: ${(p) => (p.$isPremium ? "#1976D2" : "#828282")};
+  color: #FFFFFF;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: -0.43px;
 `;
 
 export const ProfileName = styled.div`
-  position: absolute;
-  width: 44px;
-  height: 22px;
-  left: calc(50% - 44px/2);
-  top: 137px;
+  position: relative;
+  width: 100%;
+  min-height: 22px;
+  margin-bottom: 4px;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
@@ -113,14 +145,17 @@ export const ProfileName = styled.div`
   text-align: center;
   letter-spacing: -0.43px;
   color: #0D0D0D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const ProfileEmail = styled.div`
-  position: absolute;
-  width: 194px;
-  height: 22px;
-  left: calc(50% - 194px/2);
-  top: 163px;
+  position: relative;
+  width: auto;
+  max-width: 194px;
+  min-height: 22px;
+  margin-bottom: 16px;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
@@ -129,14 +164,15 @@ export const ProfileEmail = styled.div`
   text-align: center;
   letter-spacing: -0.43px;
   color: #838383;
+  word-break: break-all;
 `;
 
 export const ActionButtons = styled.div`
-  position: absolute;
-  width: 300px;
+  position: relative;
+  width: 100%;
+  max-width: 300px;
   height: 48px;
-  left: calc(50% - 300px/2);
-  top: 197px;
+  margin-top: auto;
   background: #E0E0E0;
   border-radius: 8px;
   display: flex;
@@ -170,11 +206,11 @@ export const ActionButton = styled.button`
 `;
 
 export const BottomActions = styled.div`
-  position: absolute;
-  width: 328px;
+  position: relative;
+  width: 100%;
+  max-width: 328px;
   height: 48px;
-  left: calc(50% - 328px/2);
-  top: 407px;
+  margin-top: 20px;
   background: #F3F3F3;
   border-radius: 16px;
   display: flex;

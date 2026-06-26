@@ -9,13 +9,18 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 import { colors } from "@/styles/colors";
 import webSocketClient from "@/features/chat/utils/webSocketClient";
+import {
+  getTodayChatMessages,
+  getPastChatMessages,
+} from "@/features/chat/api/chatApi";
+import { getCurrentUserId } from "@/shared/utils/jwtUtils";
 
 // ============ Styles ============
 
 const PageWrapper = styled.div`
   position: relative;
   width: 100%;
-  max-width: 375px;
+  max-width: 800px;
   height: 100vh;
   margin: 0 auto;
   overflow: hidden;
@@ -80,7 +85,14 @@ const BotMessage = styled.div`
   font-size: 14px;
   line-height: 140%;
   color: #0d0d0d;
-  max-width: 288px;
+  width: 100%;
+  max-width: calc(100% - 40px);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+
+  @media (min-width: 768px) {
+    max-width: 36rem;
+  }
 `;
 
 const UserChatWrapper = styled.div`
@@ -147,6 +159,11 @@ const InputWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
+
+  /* Input focus 시 border 색상 변경 */
+  &:focus-within {
+    border-color: #5482ff;
+  }
 `;
 
 const Input = styled.input`
@@ -159,10 +176,10 @@ const Input = styled.input`
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
-  color: #838383;
+  color: #0d0d0d;
 
   &::placeholder {
-    color: #838383;
+    color: ${(props) => (props.$hasValue ? "#0D0D0D" : "#838383")};
   }
 `;
 
@@ -252,7 +269,93 @@ const SidebarText = styled.span`
   color: ${(props) => props.$color || "#0D0D0D"};
 `;
 
+// Typing indicator styles
+const TypingIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  max-width: 60px;
+  background: #f3f3f3;
+  border-radius: 12px;
+  margin: 10px 20px;
+`;
+
+const TypingDot = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #838383;
+  animation: typing 1.4s infinite;
+  animation-delay: ${(props) => props.$delay || "0s"};
+
+  @keyframes typing {
+    0%,
+    60%,
+    100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+    30% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+`;
+
 // ============ Helper Functions ============
+
+const formatTimestamp = (dateInput) => {
+  const date =
+    dateInput instanceof Date ? dateInput : new Date(dateInput ?? undefined);
+
+  if (isNaN(date?.getTime())) {
+    return "(시간 정보 없음)";
+  }
+
+  const parts = date
+    .toLocaleString("ko-KR", {
+      weekday: "short",
+      hour: "numeric",
+      minute: "2-digit",
+    })
+    .split(" ")
+    .filter(Boolean);
+
+  if (!parts.length) {
+    return "(시간 정보 없음)";
+  }
+
+  const [weekdayRaw, ...restParts] = parts;
+  const weekday = weekdayRaw?.replace(/[()]/g, "");
+  const rest = restParts.join(" ").trim();
+
+  if (weekday && rest) {
+    return `(${weekday}) ${rest}`;
+  }
+
+  return weekday ? `(${weekday})` : rest || "(시간 정보 없음)";
+};
+
+// 타임스탬프를 표시할지 여부를 결정하는 함수
+const shouldShowTimestamp = (messages, currentIndex) => {
+  const currentMsg = messages[currentIndex];
+  const prevMsg = messages[currentIndex - 1];
+
+  // 첫 번째 메시지는 항상 타임스탬프 표시
+  if (currentIndex === 0) return true;
+
+  // 이전 메시지가 없으면 표시
+  if (!prevMsg || !prevMsg.timestampDate || !currentMsg.timestampDate) {
+    return true;
+  }
+
+  // 30분(1800000ms) 이상 차이나면 타임스탬프 표시
+  const timeDiff = Math.abs(
+    currentMsg.timestampDate.getTime() - prevMsg.timestampDate.getTime()
+  );
+  return timeDiff >= 1800000; // 30분 = 30 * 60 * 1000ms
+};
 
 const getMessagePosition = (messages, currentIndex, textIndex, totalTexts) => {
   const currentMsg = messages[currentIndex];
@@ -292,62 +395,127 @@ const ChatPage = () => {
   const chatContentRef = useRef(null); // 스크롤을 위한 ref
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [currentChatId, setCurrentChatId] = useState("chat-1");
-  const [userId] = useState(1); // 실제로는 로그인한 사용자 ID
+  const [currentChatId, setCurrentChatId] = useState("today");
+  const [userId, setUserId] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [chatHistories, setChatHistories] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [todayMessages, setTodayMessages] = useState([]); // 오늘 채팅 메시지 저장
+  const [isTyping, setIsTyping] = useState(false);
 
-  // 채팅 데이터 (실제로는 API에서 가져올 데이터)
-  const [chatHistories] = useState([
-    {
-      id: "chat-1",
-      title: "친구와 다툼",
-      messages: [
-        {
-          id: 1,
-          type: "bot",
-          text: "오늘 하루는 어떠셨나요?",
-          timestamp: "(금) 오후 8:04",
-        },
-        {
-          id: 2,
-          type: "user",
-          texts: ["오늘은 너무 힘들었어.", "고향 친구와 다퉜거든"],
-        },
-        {
-          id: 3,
-          type: "bot",
-          text: `오늘 정말 힘들었겠어요.\n\n가까운 사람과 다투면 마음이 크게 흔들리고, 하루 전체가 무거워지죠.\n지금 그 감정 느끼는 건 아주 자연스러운 일이에요.\n\n혹시 괜찮다면,\n• 어떤 상황에서\n• 무엇 때문에\n• 어떤 감정이 들었는지\n조금만 더 얘기해줄 수 있을까요?\n\n당신 편에서 차분히 함께 정리해줄게요.`,
-          showDivider: true,
-        },
-      ],
-    },
-    {
-      id: "chat-2",
-      title: "고향 친구를 우연히 만남",
-      messages: [
-        {
-          id: 1,
-          type: "bot",
-          text: "무슨 일이 있었나요?",
-          timestamp: "(목) 오후 3:20",
-        },
-        {
-          id: 2,
-          type: "user",
-          texts: ["고향 친구를 우연히 만났어"],
-        },
-        {
-          id: 3,
-          type: "bot",
-          text: "반가운 만남이었겠네요! 어떤 이야기를 나누셨나요?",
-        },
-      ],
-    },
-  ]);
+  // API 데이터 변환 함수
+  const transformApiMessage = (apiMessage) => {
+    const dateArray = apiMessage.createdAt;
+    const date = new Date(
+      dateArray[0],
+      dateArray[1] - 1,
+      dateArray[2],
+      dateArray[3],
+      dateArray[4],
+      dateArray[5]
+    );
 
-  const [messages, setMessages] = useState(
-    chatHistories.find((chat) => chat.id === currentChatId)?.messages || []
-  );
+    const timestampDate = date;
+    const timestamp = formatTimestamp(timestampDate);
+
+    if (apiMessage.role === "BOT") {
+      return {
+        id: apiMessage.id,
+        type: "bot",
+        text: apiMessage.text,
+        timestamp,
+        timestampDate,
+      };
+    } else {
+      return {
+        id: apiMessage.id,
+        type: "user",
+        texts: [apiMessage.text],
+        timestamp,
+        timestampDate,
+      };
+    }
+  };
+
+  // JWT에서 userId 추출
+  useEffect(() => {
+    const extractedUserId = getCurrentUserId();
+    if (extractedUserId) {
+      setUserId(extractedUserId);
+      console.log("Extracted userId from JWT:", extractedUserId);
+    } else {
+      console.error("Failed to extract userId from JWT");
+    }
+  }, []);
+
+  // 오늘 채팅 및 과거 채팅 로드
+  useEffect(() => {
+    const fetchChatData = async () => {
+      try {
+        setLoading(true);
+
+        // 오늘 채팅 가져오기
+        const todayResponse = await getTodayChatMessages();
+        let todayMessagesData = [];
+
+        if (
+          todayResponse.success &&
+          todayResponse.data &&
+          todayResponse.data.length > 0
+        ) {
+          todayMessagesData = todayResponse.data.map(transformApiMessage);
+        } else if (
+          todayResponse.success &&
+          (!todayResponse.data || todayResponse.data.length === 0)
+        ) {
+          // 오늘 채팅이 없으면 초기 인사 메시지만 UI에 표시
+          const now = new Date();
+          todayMessagesData = [
+            {
+              id: "initial-greeting",
+              type: "bot",
+              text: "안녕하세요! 오늘 하루는 어떠셨나요?",
+              timestamp: formatTimestamp(now),
+              timestampDate: now,
+            },
+          ];
+        }
+
+        // 오늘 채팅 메시지 저장
+        setTodayMessages(todayMessagesData);
+        setMessages(todayMessagesData);
+
+        // 과거 채팅 가져오기 (사이드바용)
+        const pastResponse = await getPastChatMessages();
+        if (pastResponse.success && pastResponse.data) {
+          // 과거 채팅을 날짜별로 그룹화
+          const groupedChats = {};
+          pastResponse.data.forEach((msg) => {
+            const dateArray = msg.createdAt;
+            const dateKey = `${dateArray[0]}-${dateArray[1]}-${dateArray[2]}`;
+
+            if (!groupedChats[dateKey]) {
+              groupedChats[dateKey] = {
+                id: dateKey,
+                title: `${dateArray[1]}월 ${dateArray[2]}일 채팅`,
+                messages: [],
+              };
+            }
+            groupedChats[dateKey].messages.push(transformApiMessage(msg));
+          });
+
+          setChatHistories(Object.values(groupedChats));
+        }
+      } catch (error) {
+        console.error("Failed to fetch chat data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatData();
+  }, []);
 
   // 스크롤을 맨 아래로 이동하는 함수
   const scrollToBottom = () => {
@@ -356,29 +524,52 @@ const ChatPage = () => {
     }
   };
 
-  // 메시지가 변경될 때마다 스크롤을 맨 아래로 이동
+  // 메시지가 변경되거나 로딩이 완료될 때 스크롤을 맨 아래로 이동
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!loading) {
+      scrollToBottom();
+    }
+  }, [messages, loading]);
 
-  // WebSocket 연결
+  // WebSocket 연결 (userId가 준비된 후에만 연결)
   useEffect(() => {
+    if (!userId) {
+      console.log("Waiting for userId to be extracted from JWT...");
+      return;
+    }
+
     const handleReceivedMessage = (data) => {
-      // 봇 메시지를 받았을 때 처리
+      // 타이핑 애니메이션 종료
+      setIsTyping(false);
+
+      if (import.meta.env.DEV) {
+        console.log("📩 Received bot message data:", data);
+      }
+
+      let timestampDate = new Date(data?.timestamp ?? undefined);
+      if (isNaN(timestampDate.getTime())) {
+        timestampDate = new Date();
+        if (import.meta.env.DEV) {
+          console.warn("⚠️ Invalid timestamp received, using current time");
+        }
+      }
+
       const botMessage = {
         id: Date.now(),
         type: "bot",
-        text: data.message,
-        timestamp: new Date(data.timestamp)
-          .toLocaleString("ko-KR", {
-            weekday: "short",
-            hour: "numeric",
-            minute: "2-digit",
-          })
-          .replace(/^/, "(")
-          .replace(/ /, ") "),
+        text: data?.text || data?.message || "",
+        timestamp: formatTimestamp(timestampDate),
+        timestampDate,
       };
+
+      if (import.meta.env.DEV) {
+        console.log("💬 Transformed bot message:", botMessage);
+        console.log("💬 Final text length:", botMessage.text?.length);
+      }
+
+      // messages와 todayMessages 둘 다 업데이트
       setMessages((prev) => [...prev, botMessage]);
+      setTodayMessages((prev) => [...prev, botMessage]);
     };
 
     const handleError = (error) => {
@@ -387,12 +578,13 @@ const ChatPage = () => {
     };
 
     // WebSocket 연결 시작
-    console.log("WebSocket connected successfully");
+    console.log("Connecting to Chat WebSocket with userId:", userId);
     setIsConnected(true);
     webSocketClient.connect(userId, handleReceivedMessage, handleError);
 
     // 컴포넌트 언마운트 시 연결 종료
     return () => {
+      console.log("Disconnecting Chat WebSocket");
       webSocketClient.disconnect();
     };
   }, [userId]);
@@ -405,22 +597,10 @@ const ChatPage = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleNewChat = () => {
-    const newChatId = `chat-${Date.now()}`;
-    setCurrentChatId(newChatId);
-    setMessages([
-      {
-        id: 1,
-        type: "bot",
-        text: "안녕하세요! 오늘 하루는 어떠셨나요?",
-        timestamp: `(${new Date().toLocaleDateString("ko-KR", {
-          weekday: "short",
-        })}) ${new Date().toLocaleTimeString("ko-KR", {
-          hour: "numeric",
-          minute: "2-digit",
-        })}`,
-      },
-    ]);
+  const handleBackToToday = () => {
+    // 오늘 채팅으로 돌아가기
+    setCurrentChatId("today");
+    setMessages(todayMessages);
     setSidebarOpen(false);
   };
 
@@ -434,143 +614,182 @@ const ChatPage = () => {
   };
 
   const handleSend = async () => {
-    if (inputValue.trim()) {
+    if (inputValue.trim() && userId) {
       const messageText = inputValue.trim();
+      const now = new Date();
 
       // UI에 사용자 메시지 즉시 표시
       const newMessage = {
         id: messages.length + 1,
         type: "user",
         texts: [messageText],
+        timestampDate: now, // 비교를 위한 Date 객체 추가
+        timestamp: formatTimestamp(now),
       };
       setMessages((prev) => [...prev, newMessage]);
+      setTodayMessages((prev) => [...prev, newMessage]);
       setInputValue("");
 
       // WebSocket으로 메시지 전송
       try {
         if (isConnected) {
-          await webSocketClient.sendMessage(userId, messageText);
+          // 타이핑 애니메이션 시작
+          setIsTyping(true);
+
+          await webSocketClient.sendMessage(messageText);
           console.log("Message sent successfully");
         } else {
           console.warn("WebSocket not connected, message not sent");
         }
       } catch (error) {
         console.error("Failed to send message:", error);
+        // 에러 발생 시 타이핑 애니메이션 종료
+        setIsTyping(false);
       }
+    } else if (!userId) {
+      console.warn("Cannot send message: userId not available");
     }
   };
 
   return (
-    <PageWrapper>
-      <ChatContainer>
-        <Header
-          leftIcon={<ChevronLeftIcon />}
-          onLeftClick={onBack}
-          text="Localy"
-          rightIcon={<MenuIcon />}
-          onRightClick={toggleSidebar}
-        />
+    <>
+      <PageWrapper>
+        <ChatContainer>
+          <Header
+            leftIcon={<ChevronLeftIcon />}
+            onLeftClick={onBack}
+            text={"Localy"}
+            rightIcon={<MenuIcon rotate={180} />}
+            onRightClick={toggleSidebar}
+          />
 
-        <ChatContent ref={chatContentRef}>
-          {messages.map((message, index) => (
-            <div key={message.id}>
-              {message.timestamp && <Timestamp>{message.timestamp}</Timestamp>}
+          <ChatContent ref={chatContentRef}>
+            {loading ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                }}
+              >
+                <p>채팅을 불러오는 중...</p>
+              </div>
+            ) : (
+              messages.map((message, index) => (
+                <div key={message.id}>
+                  {shouldShowTimestamp(messages, index) &&
+                    message.timestamp && (
+                      <Timestamp>{message.timestamp}</Timestamp>
+                    )}
 
-              {message.type === "bot" ? (
-                <>
-                  {message.showDivider && index > 0 && <Divider />}
-                  <ChatMessage>
-                    <BotMessage>
-                      {message.text.split("\n").map((line, i) => (
-                        <span key={i}>
-                          {line}
-                          {i < message.text.split("\n").length - 1 && <br />}
-                        </span>
-                      ))}
-                    </BotMessage>
-                  </ChatMessage>
-                </>
-              ) : (
-                <UserChatWrapper
-                  $isFirstInGroup={
-                    index === 0 || messages[index - 1]?.type !== "user"
-                  }
-                  $isLastInGroup={
-                    index === messages.length - 1 ||
-                    messages[index + 1]?.type !== "user"
-                  }
-                >
-                  {message.texts.map((text, i) => {
-                    const position = getMessagePosition(
-                      messages,
-                      index,
-                      i,
-                      message.texts.length
-                    );
-                    return (
-                      <MessageBubble key={i} $position={position}>
-                        {text}
-                      </MessageBubble>
-                    );
-                  })}
-                </UserChatWrapper>
-              )}
-            </div>
-          ))}
-        </ChatContent>
+                  {message.type === "bot" ? (
+                    <>
+                      {message.showDivider && index > 0 && <Divider />}
+                      <ChatMessage>
+                        <BotMessage>
+                          {message.text.split("\n").map((line, i) => (
+                            <span key={i}>
+                              {line}
+                              {i < message.text.split("\n").length - 1 && (
+                                <br />
+                              )}
+                            </span>
+                          ))}
+                        </BotMessage>
+                      </ChatMessage>
+                    </>
+                  ) : (
+                    <UserChatWrapper
+                      $isFirstInGroup={
+                        index === 0 || messages[index - 1]?.type !== "user"
+                      }
+                      $isLastInGroup={
+                        index === messages.length - 1 ||
+                        messages[index + 1]?.type !== "user"
+                      }
+                    >
+                      {message.texts.map((text, i) => {
+                        const position = getMessagePosition(
+                          messages,
+                          index,
+                          i,
+                          message.texts.length
+                        );
+                        return (
+                          <MessageBubble key={i} $position={position}>
+                            {text}
+                          </MessageBubble>
+                        );
+                      })}
+                    </UserChatWrapper>
+                  )}
+                </div>
+              ))
+            )}
+            {isTyping && (
+              <TypingIndicator>
+                <TypingDot $delay="0s" />
+                <TypingDot $delay="0.2s" />
+                <TypingDot $delay="0.4s" />
+              </TypingIndicator>
+            )}
+          </ChatContent>
 
-        <FooterInput>
-          <InputWrapper>
-            <Input
-              placeholder="당신의 이야기를 들려주세요."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            />
-            <MicButton>
-              <MicIcon color="#838383" size={24} />
-            </MicButton>
-            <SendButton onClick={handleSend} disabled={!inputValue.trim()}>
-              <ArrowUpIcon color="#5482FF" size={24} />
-            </SendButton>
-          </InputWrapper>
-        </FooterInput>
-      </ChatContainer>
+          <FooterInput>
+            <InputWrapper>
+              <Input
+                placeholder="당신의 이야기를 들려주세요."
+                value={inputValue}
+                $hasValue={inputValue.length > 0}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              />
+              <MicButton>
+                <MicIcon color="#838383" size={24} />
+              </MicButton>
+              <SendButton onClick={handleSend} disabled={!inputValue.trim()}>
+                <ArrowUpIcon color="#5482FF" size={24} />
+              </SendButton>
+            </InputWrapper>
+          </FooterInput>
+        </ChatContainer>
 
-      {/* Sidebar */}
-      <Dimmed $isOpen={sidebarOpen} onClick={toggleSidebar} />
-      <Sidebar $isOpen={sidebarOpen}>
-        <SidebarItem $marginBottom="27px" onClick={handleNewChat}>
-          <SidebarIconWrapper>
-            <PencilIcon color="#0D0D0D" size={20} />
-          </SidebarIconWrapper>
-          <SidebarText>새로운 채팅</SidebarText>
-        </SidebarItem>
-
-        <SidebarText
-          $bold
-          $size="14px"
-          $lineHeight="20px"
-          style={{ display: "block", marginBottom: "10px" }}
-        >
-          최근
-        </SidebarText>
-
-        {chatHistories.map((chat) => (
-          <SidebarItem
-            key={chat.id}
-            $marginBottom="10px"
-            onClick={() => handleSelectChat(chat.id)}
-          >
-            <SidebarText
-              $color={currentChatId === chat.id ? "#5482FF" : "#0D0D0D"}
-            >
-              {chat.title}
-            </SidebarText>
+        {/* Sidebar */}
+        <Dimmed $isOpen={sidebarOpen} onClick={toggleSidebar} />
+        <Sidebar $isOpen={sidebarOpen}>
+          <SidebarItem $marginBottom="27px" onClick={handleBackToToday}>
+            <SidebarIconWrapper>
+              <PencilIcon color="#0D0D0D" size={20} />
+            </SidebarIconWrapper>
+            <SidebarText>오늘 채팅으로 돌아가기</SidebarText>
           </SidebarItem>
-        ))}
-      </Sidebar>
-    </PageWrapper>
+
+          <SidebarText
+            $bold
+            $size="14px"
+            $lineHeight="20px"
+            style={{ display: "block", marginBottom: "10px" }}
+          >
+            최근
+          </SidebarText>
+
+          {chatHistories.map((chat) => (
+            <SidebarItem
+              key={chat.id}
+              $marginBottom="10px"
+              onClick={() => handleSelectChat(chat.id)}
+            >
+              <SidebarText
+                $color={currentChatId === chat.id ? "#5482FF" : "#0D0D0D"}
+              >
+                {chat.title}
+              </SidebarText>
+            </SidebarItem>
+          ))}
+        </Sidebar>
+      </PageWrapper>
+    </>
   );
 };
 
